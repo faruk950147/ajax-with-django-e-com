@@ -1,0 +1,75 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Single product{% endblock title %} 
+{% block main %}
+	<!-- BREADCRUMB -->
+	<div id="breadcrumb">
+		<div class="container">
+			<ul class="breadcrumb">
+				<li><a href="#">Home</a></li>
+				<li><a href="#">Products</a></li>
+				<li><a href="#">Category</a></li>
+				<li class="active">Product Name Goes Here</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /BREADCRUMB -->
+	{% include "components/detail.html" %}
+	{% include "components/related.html" %}
+
+	
+{% endblock main %}
+
+{% block extra_scripts %}
+	<script>
+		$(document).ready(function(){
+			// Your JavaScript code here
+			//product review add Retrive
+			$("#reviewForm").submit(function(e){
+				e.preventDefault();
+				$.ajax({
+					url: $(this).attr("action"),
+					method: $(this).attr("method"),
+					data: $(this).serialize(),
+					dataType: "json", 
+					success: function(res) {
+						if (res.status == 1) {
+							var newReview = `
+								<div class="single-review">
+									<div class="review-heading">
+										<div><a href="#"><i class="fa fa-user-o"></i> ${res.user}</a></div>
+										<div><a href="#"><i class="fa fa-clock-o"></i> ${res.created_date}</a></div>
+										<div class="review-rating pull-right">
+											${[...Array(5)].map((_, i) => {
+												return `<i class="fa fa-star${i < res.rate ? '' : '-o empty'}"></i>`;
+											}).join('')}
+										</div>
+									</div>
+									<div class="review-body">
+										<p>${res.subject}</p>
+										<p>${res.comment}</p>
+									</div>
+								</div>
+							`;
+							// Add the new review to the top of the list
+							$('.product-reviews').prepend(newReview);
+							// Optionally clear the form after submission
+							$('#reviewForm')[0].reset();
+							
+							$('.reviews_total_avg').load(location.href + ' .reviews_total_avg');
+							$('.review_count').load(location.href + ' .review_count');
+							$('.reviews_total').load(location.href + ' .reviews_total');
+							$('#sendReview').attr('disabled',true);
+							$('#sendReview').css('color','red');
+						} 
+						else {
+							alert('Error submitting your review');
+						}
+					},
+				})
+			});
+
+
+		});
+	</script>
+{% endblock extra_scripts %}
