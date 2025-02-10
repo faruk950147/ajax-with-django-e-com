@@ -55,3 +55,10 @@ class CartView(LoginRequiredMixin, generic.View):
             
         }
         return render(request, 'cart/cart.html', context)
+    
+@method_decorator(never_cache, name='dispatch')
+class Quantity_inc_dec(LoginRequiredMixin, generic.View):
+    login_url = reverse_lazy('sign')
+    def post(self, request):
+        if request.method == "POST" or request.method == "post" and request.is_ajax(): 
+            pass
