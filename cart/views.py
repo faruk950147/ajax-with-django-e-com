@@ -50,6 +50,7 @@ class AddTtoCart(LoginRequiredMixin, generic.View):
 class CartView(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def get(self, request):
+        
         context = {
             
         }

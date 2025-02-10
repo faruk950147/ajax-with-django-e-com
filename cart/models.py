@@ -17,5 +17,21 @@ class Cart(models.Model):
     variant = models.ForeignKey(Variants, on_delete=models.CASCADE, blank=True, null=True) 
     quantity = models.PositiveIntegerField(default=1)
     
+    class Meta:
+        ordering = ['-id']
+        verbose_name_plural = '01. Carts'
+        
+    @property
+    def single_price(self):
+        return (self.product.price)
+
+    @property
+    def quantity_price(self):
+        return (self.quantity * self.product.price)
+
+    # @property
+    # def Variants_price(self):
+    #     return (self.quantity * self.variant.price)
+    
     def __str__(self):
         return self.product.title
