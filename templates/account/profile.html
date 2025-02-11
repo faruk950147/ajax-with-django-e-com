@@ -78,6 +78,11 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
+                      <div class="edit_profile" style="float: inline-end;">
+                        <button type="button" class="btn btn-primary btn-round text-center" data-toggle="tooltip" data-placement="top" title="Edit Profile" id="toggleBtn">
+                          <i class="fas fa-pen-nib"></i>
+                         </button>
+                      </div>
                       <div class="card-body text-center">
                         <div class="img-fluid">
                           {% if request.user.profiles.profile_image %}
@@ -101,11 +106,6 @@
                           {% endif %}
                         </p>
                         <p class="text-muted mb-4">{{request.user.profiles.address}}</p>
-                      </div>
-                      <div class="edit_profile" style="float: inline-end;">
-                        <button type="button" class="btn btn-primary btn-round text-center" data-toggle="tooltip" data-placement="top" title="Edit Profile" id="toggleBtn">
-                          <i class="fas fa-pen-nib"></i>
-                         </button>
                       </div>
                     </div>
                 </div>

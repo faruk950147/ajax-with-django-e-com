@@ -118,18 +118,16 @@ class ActivationView(generic.View):
     def get(self, request, uidb64, token):
         try:
             id = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(id=id)
+            user = get_object_or_404(User, id=id)
             if not account_activation_token.check_token(user, token):
-                messages.success(request, 'Account already activated successfully')
-                return redirect('sign')
-            if user.is_active:
+                messages.error(request, 'This token already used or invalid')
                 return redirect('sign')
             user.is_active = True
             user.save()
-            messages.success(request, 'Account activated successfully')
+            messages.success(request, 'Your account activated successfully !')
             return redirect('sign')
         except Exception as e:
-            pass
+            messages.error(request, 'Something went wrong')
         return redirect('sign')   
 
 @method_decorator(never_cache, name='dispatch')
@@ -145,13 +143,17 @@ class SignInView(LogoutRequiredMixin, generic.View):
             if user:
                 if user.is_superuser:
                     login(request, user)
+                    messages.success(request, 'You are admin logged in successfully !')
                     return JsonResponse({'status': 200})                    
                 if user.is_active:
                     login(request, user)
+                    messages.success(request, 'You are user logged in successfully !')
                     return JsonResponse({'status': 201})
                 else:
+                    messages.error(request, 'Your account is not active')
                     return JsonResponse({'status': 202})
             else:
+                messages.error(request, 'Invalid username or password')
                 return JsonResponse({'status': 400})
         return render(request, 'account/login.html')
     
@@ -161,6 +163,16 @@ class SignOutView(LoginRequiredMixin, generic.View):
     def get(self, request):
         logout(request)
         return redirect('sign')
+    
+    # def post(self, request):
+    #     if request.method == "POST" or request.method == "post" and request.is_ajax():
+    #         logout(request)
+    #         messages.success(request, 'You are logged out successfully !')
+    #         return JsonResponse({'status': 200})
+    #     else:
+    #         messages.error(request, 'Something went wrong')
+    #         return JsonResponse({'status': 400})    
+    #         html nav <button id="logout-btn">Logout</button> ajax call
     
 @method_decorator(never_cache, name='dispatch')    
 class ChangePasswordView(LoginRequiredMixin, generic.View):
@@ -179,6 +191,7 @@ class ChangePasswordView(LoginRequiredMixin, generic.View):
                 messages.success(request, 'Your password changes successfully !')
                 return JsonResponse({'status': 200})
             else:
+                messages.error(request, 'Your current password is wrong !')
                 return JsonResponse({'status': 400})
         return render(request, 'account/changes-password.html')
     
@@ -201,8 +214,10 @@ class ResetPasswordView(LogoutRequiredMixin, generic.View):
                         [email]
                     )
                     EmailThread(email).start()
+                    messages.success(request, 'We have sent you an email with otp to reset your password')
                     return JsonResponse({"status": 200, 'otp': otp, 'email': user.email})
             except Exception as e:
+                messages.error(request, 'Something went wrong')
                 return JsonResponse({"status": 400})
     
 @method_decorator(never_cache, name='dispatch')    
