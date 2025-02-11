@@ -72,14 +72,9 @@
             <div class="card mb-4">
               <div class="card-body">
                 <div class="row">
-                  <div class="col-sm-12">
-                    {% include "components/alert.html" %}
-                  </div>
-                </div>
-                <div class="row">
                     <div class="col-sm-12">
                       <div class="edit_profile" style="float: inline-end;">
-                        <button type="button" class="primary-btn btn-round text-center" data-toggle="tooltip" data-placement="top" title="Edit Profile" id="toggleBtn">
+                        <button type="button" class="btn primary-btn btn-round text-center" data-toggle="tooltip" data-placement="top" title="Edit Profile" id="toggleBtn">
                           <i class="fas fa-pen-nib"></i>
                          </button>
                       </div>
@@ -89,7 +84,7 @@
                           <img src="{{request.user.profiles.profile_image.url}}" alt="{{request.user.username}}"
                           class="rounded-circle img-fluid shadow-lg" style="width: 150px;">
                           {% else %}
-                          <img src="{% static "img/user.png" %}" alt="{{request.user.username}}"
+                          <img src="{% static "assets/img/user.png" %}" alt="{{request.user.username}}"
                           class="rounded-circle img-fluid shadow-lg" style="width: 150px;">
                           {% endif %}  
                         </div>
