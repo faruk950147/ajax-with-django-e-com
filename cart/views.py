@@ -24,77 +24,87 @@ from cart.models import (
 class AddTtoCart(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request, id):
-        url = request.META.get('HTTP_REFERER')  
-        cart_filter = Cart.objects.filter(product_id=id, user_id=request.user.id)
-        if cart_filter:
-            control = 1
+        if request.user.is_authenticated:
+            url = request.META.get('HTTP_REFERER')  
+            cart_filter = Cart.objects.filter(product_id=id, user_id=request.user.id)
+            if cart_filter:
+                control = 1
+            else:
+                control = 0
+            if request.method == "POST" or request.method == "post" and request.is_ajax():
+                cartForm = CartForm(request.POST)
+                if cartForm.is_valid():
+                    if control == 1:
+                        cartItem = get_object_or_404(Cart, product_id=id, user_id=request.user.id)
+                        cartItem.quantity += int(request.POST.get('quantity'))
+                        cartItem.save()
+                    else:
+                        cartItem = Cart()
+                        cartItem.product_id = id
+                        cartItem.user_id = request.user.id
+                        cartItem.save()
+                return HttpResponseRedirect(url)
+            else:
+                return HttpResponse('Get method not allowed')
         else:
-            control = 0
-        if request.method == "POST" or request.method == "post" and request.is_ajax():
-            cartForm = CartForm(request.POST)
-            if cartForm.is_valid():
-                if control == 1:
-                    cartItem = get_object_or_404(Cart, product_id=id, user_id=request.user.id)
-                    cartItem.quantity += int(request.POST.get('quantity'))
-                    cartItem.save()
-                else:
-                    cartItem = Cart()
-                    cartItem.product_id = id
-                    cartItem.user_id = request.user.id
-                    cartItem.save()
-            return HttpResponseRedirect(url)
-        else:
-            return HttpResponse('Get method not allowed')
+            return HttpResponseRedirect(reverse_lazy('sign'))
 
 @method_decorator(never_cache, name='dispatch')
 class CartView(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def get(self, request):
-        
-        context = {
-            
-        }
-        return render(request, 'cart/cart.html', context)
+        if request.user.is_authenticated:
+            context = {
+                
+            }
+            return render(request, 'cart/cart.html', context)
+        else:
+            return HttpResponseRedirect(reverse_lazy('sign'))
     
 @method_decorator(never_cache, name='dispatch')
 class QuantityIncDec(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):
-        if request.method == "POST" or request.method == "post" and request.is_ajax(): 
-            id = request.POST.get("id")
-            action = request.POST.get("action")
-            try:
-                cart_product = get_object_or_404(Cart, id=id)
-                if action == "increase":
-                    cart_product.quantity += 1
-                elif action == "decrease" and cart_product.quantity > 1:
-                    cart_product.quantity -= 1
-                cart_product.save()
-                cart_products = Cart.objects.filter(user_id=request.user.id)
-                return JsonResponse({"status": 200, 
-                                     "messages": "Quantity updated successfully ! " + str(cart_product.quantity),
-                                     "quantity": cart_product.quantity,
-                                     "cart_total": sum(item.quantity * item.product.price for item in cart_products),
-                                     "qty_total_price": cart_product.product.price * cart_product.quantity,
-                                     "sub_total": sum(item.quantity * item.product.price for item in cart_products),
-                                     "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
-                                     "id": id
-                                     })
-            except Cart.DoesNotExist:
-                return JsonResponse({"status": 400, 
-                                     "messages": "Product not found"
-                                     })
-        return JsonResponse({"status": 400, 
-                             "messages": "Something is happen"
-                             })
-
+        if request.user.is_authenticated:
+            if request.method == "POST" or request.method == "post" and request.is_ajax(): 
+                id = request.POST.get("id")
+                action = request.POST.get("action")
+                try:
+                    cart_product = get_object_or_404(Cart, id=id)
+                    if action == "increase":
+                        cart_product.quantity += 1
+                    elif action == "decrease" and cart_product.quantity > 1:
+                        cart_product.quantity -= 1
+                    cart_product.save()
+                    cart_products = Cart.objects.filter(user_id=request.user.id)
+                    return JsonResponse({"status": 200, 
+                                        "messages": "Quantity updated successfully ! " + str(cart_product.quantity),
+                                        "quantity": cart_product.quantity,
+                                        "cart_total": sum(item.quantity * item.product.price for item in cart_products),
+                                        "qty_total_price": cart_product.product.price * cart_product.quantity,
+                                        "sub_total": sum(item.quantity * item.product.price for item in cart_products),
+                                        "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
+                                        "id": id
+                                        })
+                except Cart.DoesNotExist:
+                    return JsonResponse({"status": 400, 
+                                        "messages": "Product not found"
+                                        })
+            return JsonResponse({"status": 400, 
+                                "messages": "Something is happen"
+                                })
+        else:
+            return JsonResponse({"status": 401, 
+                                "messages": "You are not logged in !"
+                                })
 
 @method_decorator(never_cache, name='dispatch')
 class RemoveToCart(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):
-        if request.method == "POST" or request.method == "post" and request.is_ajax(): 
-            id = request.POST.get("id")
+        if request.user.is_authenticated:
+            if request.method == "POST" or request.method == "post" and request.is_ajax(): 
+                id = request.POST.get("id")
 
             try:
                 cart_item = get_object_or_404(Cart, id=id)

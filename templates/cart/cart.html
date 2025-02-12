@@ -131,6 +131,9 @@
 					else if (res.status == 400) {
 						alertify.error(res.messages);
 					}
+					else if (res.status == 401) {
+						alertify.error(res.messages);
+					}
 				}
 				
             });

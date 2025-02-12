@@ -234,6 +234,9 @@
                   $('.profileBox').load(window.location.href + ' .profileBox');
                   alertify.success(res.messages)
                 }
+                else if(res.status == 400){
+                  alertify.error(res.messages)
+                }
               }
             });
           }
