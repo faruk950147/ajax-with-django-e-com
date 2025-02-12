@@ -57,8 +57,51 @@ class CartView(LoginRequiredMixin, generic.View):
         return render(request, 'cart/cart.html', context)
     
 @method_decorator(never_cache, name='dispatch')
-class Quantity_inc_dec(LoginRequiredMixin, generic.View):
+class QuantityIncDec(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):
         if request.method == "POST" or request.method == "post" and request.is_ajax(): 
-            pass
+            id = request.POST.get("id")
+            action = request.POST.get("action")
+            try:
+                cart_product = get_object_or_404(Cart, id=id)
+                if action == "increase":
+                    cart_product.quantity += 1
+                elif action == "decrease" and cart_product.quantity > 1:
+                    cart_product.quantity -= 1
+                cart_product.save()
+                cart_products = Cart.objects.filter(user_id=request.user.id)
+                return JsonResponse({"status": 200, 
+                                     "messages": "Quantity updated successfully ! " + str(cart_product.quantity),
+                                     "quantity": cart_product.quantity,
+                                     "cart_total": sum(item.quantity * item.product.price for item in cart_products),
+                                     "qty_total_price": cart_product.product.price * cart_product.quantity,
+                                     "sub_total": sum(item.quantity * item.product.price for item in cart_products),
+                                     "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
+                                     "id": id
+                                     })
+            except Cart.DoesNotExist:
+                return JsonResponse({"status": 400, 
+                                     "messages": "Product not found"
+                                     })
+        return JsonResponse({"status": 400, 
+                             "messages": "Something is happen"
+                             })
+
+
+@method_decorator(never_cache, name='dispatch')
+class RemoveToCart(LoginRequiredMixin, generic.View):
+    login_url = reverse_lazy('sign')
+    def post(self, request):
+        if request.method == "POST" or request.method == "post" and request.is_ajax(): 
+            id = request.POST.get("id")
+
+            try:
+                cart_item = get_object_or_404(Cart, id=id)
+                cart_item.delete()
+                return JsonResponse({"status": 200, "messages": "Product removed successfully !", "id": id})
+
+            except Cart.DoesNotExist:
+                return JsonResponse({"status": 400, "messages": "Product not found"})
+
+        return JsonResponse({"status": 400, "messages": "Invalid request"})

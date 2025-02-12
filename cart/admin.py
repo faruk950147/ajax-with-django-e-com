@@ -5,5 +5,5 @@ from cart.models import Cart
 
 # Register your models here.
 class CartAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'product', 'quantity', 'single_price', 'quantity_price', ]
+    list_display = ['id', 'user', 'product', 'quantity', 'single_price', 'qty_total_price', ]
 admin.site.register(Cart, CartAdmin)

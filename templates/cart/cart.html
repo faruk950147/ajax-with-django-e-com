@@ -22,7 +22,7 @@
 										<th class="text-center">Price</th>
 										<th class="text-center">Quantity</th>
 										<th class="text-center">Total</th>
-										<th class="text-right"></th>
+										<th class="text-right">Remove</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -45,12 +45,28 @@
 										<td class="price text-center">
 											<strong>$ {{cart_products.product.price}}</strong>
 											<br>
-											{% if cart_products.product.old_price %}{% endif %}
+											{% if cart_products.product.old_price %}
 											<del class="font-weak"><small>$ {{cart_products.product.old_price}}</small></del>
+											{% endif %}
 										</td>
-										<td class="qty text-center"><input class="input" type="number" value="{{cart_products.quantity}}"></td>
-										<td class="total text-center"><strong class="primary-color">$ {{cart_products.quantity_price}}</strong></td>
-										<td class="text-right"><button class="main-btn icon-btn"><i class="fa fa-close"></i></button></td>
+										<td class="qty text-center">
+											<button class="btn btn-sm btn-outline-secondary decrease-qty" data-id="{{ cart_products.id }}">-</button>
+											<span class="quantity" data-id="{{ cart_products.id }}"> {{ cart_products.quantity }} </span>
+											<button class="btn btn-sm btn-outline-secondary increase-qty" data-id="{{ cart_products.id }}">+</button>
+										</td>
+
+										<td class="total text-center">
+											<strong class="primary-color" data-id="{{ cart_products.id }}">
+												$ {{ cart_products.qty_total_price }}
+											</strong>
+										</td>
+										
+										<!-- Remove Item Button -->
+										<td class="text-right">
+											<button class="main-btn icon-btn btn-remove" data-id="{{ cart_products.id }}">
+												<i class="fa fa-trash"></i>
+											</button>
+										</td>
 									</tr>
 									{% endfor %}
 								</tbody>
@@ -58,17 +74,17 @@
 									<tr>
 										<th class="empty" colspan="3"></th>
 										<th>SUBTOTAL</th>
-										<th colspan="2" class="sub-total">${{cart_total_price}}</th>
-									</tr>
+										<th colspan="2" class="sub-total">$ {{sub_total}}</th>
+									</tr>	
 									<tr>
 										<th class="empty" colspan="3"></th>
 										<th>SHIPING</th>
-										<td colspan="2">Free Shipping</td>
+										<td colspan="2">$ 150 </td>
 									</tr>
 									<tr>
 										<th class="empty" colspan="3"></th>
 										<th>TOTAL</th>
-										<th colspan="2" class="total">$97.50</th>
+										<th colspan="2" class="finale-price">$ {{finale_price}}</th>
 									</tr>
 								</tfoot>
 							</table>
@@ -88,5 +104,63 @@
 
 {% endblock main %}
 {% block extra_scripts %}
+<script>
+	$(document).ready(function(){
+		// Increase or decrease quantity
+		$(".increase-qty, .decrease-qty").click(function () {
+            let id = $(this).data("id");
+            let action = $(this).hasClass("increase-qty") ? "increase" : "decrease";
 
+            $.ajax({
+                url: "{% url 'qtyincdec' %}",  // Adjust this URL based on your Django URL name
+                method: "POST",
+                data: {
+                    id: id,
+                    action: action,
+                },
+				success: function (res) {
+					if (res.status == 200) {
+						// Update quantity and total price
+						$("span.quantity[data-id='" + res.id + "']").text(res.quantity);
+						$("strong.primary-color[data-id='" + res.id + "']").text("$ " + res.qty_total_price);
+						$(".cart-total-price").text("$ " + res.cart_total);
+						$(".sub-total").text("$ " + res.sub_total);
+						$(".finale-price").text("$ " + res.finale_price);
+						alertify.success(res.messages)	
+					}
+					else if (res.status == 400) {
+						alertify.error(res.messages);
+					}
+				}
+				
+            });
+        });
+		// Increase or decrease quantity
+
+		// Remove item from cart
+		$(".btn-remove").click(function(){
+			let id = $(this).data("id");
+			let row = $(this).closest("tr");
+
+			$.ajax({
+				url: "{% url 'removetocart' %}",  // Ensure this URL is correctly mapped in Django
+				method: "POST",
+				data: {
+					id: id,
+				},
+				success: function(res){
+					if(res.status == 200){
+						row.fadeOut(300, function(){ $(this).remove(); });
+						alertify.success(res.messages);
+					}
+					else if (res.status == 400) {
+						alertify.error(res.messages);
+					}
+				}
+			});
+
+		});
+		// Remove item from cart
+	});
+</script>
 {% endblock extra_scripts %}

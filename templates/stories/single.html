@@ -61,9 +61,10 @@
 							$('.reviews_total').load(location.href + ' .reviews_total');
 							$('#sendReview').attr('disabled',true);
 							$('#sendReview').css('color','red');
+							alertify.success(res.messages)
 						} 
 						else {
-							alert('Error submitting your review');
+							alertify.error('Error submitting your review');
 						}
 					},
 				})
@@ -72,4 +73,4 @@
 
 		});
 	</script>
-{% endblock extra_scripts %}
+{% endblock extra_scripts %}	

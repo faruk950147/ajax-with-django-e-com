@@ -76,11 +76,13 @@ class ReviewsView(LoginRequiredMixin, generic.View):
             review.save()
             return JsonResponse({
                 'status': 1,
+                'id': review.id,
                 'user': review.user.username,
                 'subject': review.subject,
                 'comment': review.comment,
                 'rate': review.rate,
-                'created_date': review.created_date.strftime("%Y-%m-%d %H:%M:%S")
+                'created_date': review.created_date.strftime("%Y-%m-%d %H:%M:%S"),
+                'messages': 'Review added successfully'
             })
             
         else:

@@ -6,9 +6,9 @@ from stories.models import (
 )
 
 def get_filters(request):
-    categories = Category.objects.filter(status=True, parent=None).all().order_by('-id')
-    cats = Category.objects.filter(status=True).all().order_by('-id')
-    brands = Brand.objects.filter(status=True).all().order_by('-id')
+    categories = Category.objects.filter(status=True, parent=None).order_by('-id')
+    cats = Category.objects.filter(status=True).order_by('-id')
+    brands = Brand.objects.filter(status=True).order_by('-id')
     total_data = Product.objects.count()
     minPrice = Product.objects.all().aggregate(Min('price'))
     maxPrice = Product.objects.all().aggregate(Max('price'))
