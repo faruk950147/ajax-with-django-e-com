@@ -6,5 +6,5 @@ from stories.views import(
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('singleproductview/<int:id>/', SingleProductView.as_view(), name='singleproductview'),
-    path('reviewsview/<int:id>', ReviewsView.as_view(), name='reviewsview'),
+    path('reviewsview/', ReviewsView.as_view(), name='reviewsview'),
 ]

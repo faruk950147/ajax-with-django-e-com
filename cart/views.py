@@ -71,11 +71,26 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
                 action = request.POST.get("action")
                 try:
                     cart_product = get_object_or_404(Cart, id=id)
+                                        # Get maximum stock allowed
+                    # Get maximum stock allowed
+                    max_stock = cart_product.product.in_stock_max  
+
+                    # Increase or decrease quantity based on action
                     if action == "increase":
-                        cart_product.quantity += 1
+                        if cart_product.quantity < max_stock:
+                            cart_product.quantity += 1
+                        else:
+                            return JsonResponse({
+                                "status": 400,
+                                "messages": f"Cannot add more than {max_stock} units of this product!",
+                                "quantity": cart_product.quantity
+                            })
+                    
                     elif action == "decrease" and cart_product.quantity > 1:
                         cart_product.quantity -= 1
+
                     cart_product.save()
+                    
                     cart_products = Cart.objects.filter(user_id=request.user.id)
                     return JsonResponse({"status": 200, 
                                         "messages": "Quantity updated successfully ! " + str(cart_product.quantity),
@@ -87,14 +102,14 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
                                         "id": id
                                         })
                 except Cart.DoesNotExist:
-                    return JsonResponse({"status": 400, 
+                    return JsonResponse({"status": 401, 
                                         "messages": "Product not found"
                                         })
-            return JsonResponse({"status": 400, 
+            return JsonResponse({"status": 402, 
                                 "messages": "Something is happen"
                                 })
         else:
-            return JsonResponse({"status": 401, 
+            return JsonResponse({"status": 403, 
                                 "messages": "You are not logged in !"
                                 })
 

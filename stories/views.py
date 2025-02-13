@@ -65,34 +65,52 @@ class SingleProductView(LoginRequiredMixin, generic.View):
         else:
             return redirect('sign')
 
-@method_decorator(never_cache, name='dispatch')    
+@method_decorator(never_cache, name='dispatch')
 class ReviewsView(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('login')
-    def post(self, request, id):
-        if request.user.is_authenticated:
+    def post(self, request):  
+        if request.user.is_authenticated: 
             if request.method == "POST" or request.method == "post" and request.is_ajax():
-                product = get_object_or_404(Product, id=id)
-                
-                review = Review()
-                review.product = product
-                review.user_id = request.user.id
-                review.subject = request.POST.get('subject')
-                review.comment = request.POST.get('comment')
-                review.rate = request.POST.get('rate')
-                review.save()
+                # Check if updating an existing review
+                review_id = request.POST.get("review_id")  
+                # Get product ID from request
+                product_id = request.POST.get("product_id")  
+                # Get the form data
+                subject = request.POST.get("subject")
+                comment = request.POST.get("comment")
+                rate = int(request.POST.get("rate"))
+                print(review_id, product_id, subject, comment, rate)
+
+                if not subject or not comment or not rate or not product_id:
+                    return JsonResponse({"status": 400, "messages": "All fields are required"})
+
+                product = get_object_or_404(Product, id=product_id)  # Ensure product exists
+
+                if review_id:  # Editing an existing review
+                    review = get_object_or_404(Review, id=review_id, user_id=request.user.id)
+                    review.subject = subject
+                    review.comment = comment
+                    review.rate = rate
+                    review.save()
+                else:  # Creating a new review
+                    review = Review()
+                    review.product = product
+                    review.user_id = request.user.id
+                    review.subject = subject
+                    review.comment = comment
+                    review.rate = rate
+                    review.save()
+
                 return JsonResponse({
-                    'status': 200,
-                    'id': review.id,
-                    'user': review.user.username,
-                    'subject': review.subject,
-                    'comment': review.comment,
-                    'rate': review.rate,
-                    'created_date': review.created_date.strftime("%Y-%m-%d %H:%M:%S"),
-                    'messages': 'Review added successfully'
+                    "status": 200,
+                    "review_id": review.id,
+                    "subject": review.subject,
+                    "comment": review.comment,
+                    "rate": review.rate,  
+                    "updated_date": review.updated_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    "messages": "Review added successfully"
                 })
-                
-            else:
-                return HttpResponse('Something is happen')
+
+            return JsonResponse({"stsatus": 401, "messages": "Invalid request"})
         else:
             return redirect('sign')
-        
