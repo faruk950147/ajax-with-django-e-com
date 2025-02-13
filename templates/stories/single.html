@@ -24,21 +24,38 @@
 	<script>
 		$(document).ready(function(){
 			// Your JavaScript code here
-			//product review add Retrive
-			$("#reviewForm").submit(function(e){
+			$("#sendReview").on('click', function(e) {
 				e.preventDefault();
+				
+				let subject = $('#reviewForm #id_subject').val();
+				let comment = $('#reviewForm #id_comment').val();
+				let rate = $('#reviewForm input[name="rate"]:checked').val(); // Ensure selected value is captured
+				let csrfmiddlewaretoken = $('#reviewForm input[name=csrfmiddlewaretoken]').val();
+
+				let data = new FormData();
+				data.append("subject", subject);
+				data.append("comment", comment);
+				data.append("rate", rate);
+				data.append("csrfmiddlewaretoken", csrfmiddlewaretoken);
+				console.log(data)
+
 				$.ajax({
-					url: $(this).attr("action"),
-					method: $(this).attr("method"),
-					data: $(this).serialize(),
-					dataType: "json", 
+					url: "{% url 'reviewsview' product.id %}",
+					method: "POST",
+					data: data,
+					dataType: "json",
+					contentType: false,
+					processData: false,
 					success: function(res) {
-						if (res.status == 1) {
+						if (res.status == 200) {
 							var newReview = `
 								<div class="single-review">
 									<div class="review-heading">
 										<div><a href="#"><i class="fa fa-user-o"></i> ${res.user}</a></div>
 										<div><a href="#"><i class="fa fa-clock-o"></i> ${res.created_date}</a></div>
+										<div class="edit_review" style="float: inline-end;">
+											<button type="button" class="btn primary-btn btn-round btn-sm text-center edit-review" data-id="${res.id}" data-toggle="tooltip" data-placement="top" title="Edit Review"><i class="fas fa-pen-nib"></i></button>
+										</div>
 										<div class="review-rating pull-right">
 											${[...Array(5)].map((_, i) => {
 												return `<i class="fa fa-star${i < res.rate ? '' : '-o empty'}"></i>`;
@@ -67,10 +84,9 @@
 							alertify.error('Error submitting your review');
 						}
 					},
-				})
+				});
 			});
-
-
+			
 		});
 	</script>
 {% endblock extra_scripts %}	

@@ -75,13 +75,13 @@ class ReviewsView(LoginRequiredMixin, generic.View):
                 
                 review = Review()
                 review.product = product
-                review.user = request.user
+                review.user_id = request.user.id
                 review.subject = request.POST.get('subject')
                 review.comment = request.POST.get('comment')
                 review.rate = request.POST.get('rate')
                 review.save()
                 return JsonResponse({
-                    'status': 1,
+                    'status': 200,
                     'id': review.id,
                     'user': review.user.username,
                     'subject': review.subject,
@@ -95,3 +95,4 @@ class ReviewsView(LoginRequiredMixin, generic.View):
                 return HttpResponse('Something is happen')
         else:
             return redirect('sign')
+        
