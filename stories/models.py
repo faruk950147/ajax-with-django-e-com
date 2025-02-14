@@ -169,7 +169,7 @@ class Color(models.Model):
         verbose_name_plural = '05.Products Colorized'
         
     def __str__(self):
-        return self.title
+        return self.code
     @property
     def color_tag(self):
         if self.code:
