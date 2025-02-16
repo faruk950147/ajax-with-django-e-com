@@ -1,0 +1,26 @@
+.eye-add{
+    position: relative;
+}
+.eye-add-style{
+    position: absolute;
+    top: 8px;
+    right: 5px;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    color: #5bc0de;
+}
+.eyer-style-cursor{
+    cursor: pointer;
+}
+.color-option {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping to next line */
+  gap: 10px; /* Adds space between elements */
+  max-width: 100%;
+}
+
+.color {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
