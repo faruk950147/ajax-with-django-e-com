@@ -86,8 +86,9 @@
 								{% if request.user.is_authenticated %}
 								<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
 								<li><a href="#"><i class="fa fa-heart-o"></i> My Wishlist</a></li>
-								<li><a href="{% url "profile" %}"><i class="fa fa-id-card"></i> Profile</a></li>
-								<li><a href="{% url "changepassword" %}#"><i class="fa fa-pen-to-square"></i> Changes Password</a></li>
+								<li><a href="{% url "profileview" %}"><i class="fa fa-id-card"></i> Profile View</a></li>
+								<li><a href="{% url "changespassword" %}"><i class="fa fa-pen-to-square"></i> Changes Password</a></li>
+
 								<li><a href="{% url "signout" %}"><i class="fa-brands fa-creative-commons"></i> Sign Out</a></li>
 								{% else %}
 								<li><a href="{% url "sign" %}"><i class="fa fa-florin-sign"></i> Sign In</a></li>
