@@ -19,7 +19,7 @@ class BrandAdmin(ModelAdmin):
     list_display = ['id', 'title', 'keyword', 'description', 'image_tag', 'status', 'created_date', 'updated_date']
     search_fields = ['title', 'keyword', 'description']
     list_filter = ['status', 'created_date', 'updated_date', 'title']
-    readonly_fields = ['id', 'title', 'keyword', 'description', 'image_tag', 'status', 'created_date', 'updated_date']
+    # readonly_fields = ['id', 'title', 'keyword', 'description', 'image_tag', 'status', 'created_date', 'updated_date']
     list_editable = ['status']
 admin.site.register(Brand, BrandAdmin)
 
@@ -45,9 +45,12 @@ class ProductAdmin(ModelAdmin):
     search_fields = ['title', 'description', 'meta_title', 'meta_description', 'meta_keyword']
     list_filter = ['category', 'brand', 'variant', 'is_active', 'deals', 'new_collection', 'sides_product', 'latest_collection', 
                    'pick_collection',]
-    readonly_fields = ['id', 'category', 'brand', 'variant', 'title', 'description',
-                       'in_stock_max', 'in_stock_min', 'price', 'old_price', 'discount', 'is_active', 'deals', 'new_collection', 
-                       'sides_product', 'latest_collection', 'pick_collection']
+    # readonly_fields = ['id', 'category', 'brand', 'variant', 'title', 'description',
+    #                    'in_stock_max', 'in_stock_min', 'price', 'old_price', 'discount', 'is_active', 'deals', 'new_collection', 
+    #                    'sides_product', 'latest_collection', 'pick_collection', 'girls_collection', 'men_collection', 'pc_or_laps',  
+    #                    'in_stock', 'status', 'created_date', 'updated_date']
+    list_editable = ['category', 'brand', 'variant', 'is_active', 'deals', 'new_collection', 'sides_product', 'latest_collection', 
+                     'pick_collection', 'girls_collection', 'men_collection', 'pc_or_laps',  'in_stock', 'status']
 admin.site.register(Product, ProductAdmin)
 
 class ProductsImagesAdmin(ModelAdmin):

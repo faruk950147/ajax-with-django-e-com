@@ -31,41 +31,31 @@
 				}
 				return stars;
 			}
-
 			// Handle form submission
 			$("#sendReview").click(function (e) {
 				e.preventDefault();
-				
 				let review_id = $("#reviewForm #review_id").val();  // Check if editing
 				let product_id = $("#reviewForm #product_id").val();  // Get product ID
 				let subject = $('#reviewForm #id_subject').val();
 				let comment = $('#reviewForm #id_comment').val();
 				let rate = $('#reviewForm input[name="rate"]:checked').val(); // Ensure selected value is captured
 				let csrfmiddlewaretoken = $('#reviewForm input[name=csrfmiddlewaretoken]').val();
-
-				let data = new FormData();
-				data.append("review_id", review_id);
-				data.append("product_id", product_id);
-				data.append("subject", subject);
-				data.append("comment", comment);
-				data.append("rate", rate);
-				data.append("csrfmiddlewaretoken", csrfmiddlewaretoken);
-				console.log(data)
-
 				// Ensure productId is not empty
 				if (!review_id && !product_id) {
 					alertify.error("Review ID and Product ID is missing!");
 					return;
 				}
-
 				// Ensure subject, comment, and rate are not empty
 				if (subject.length > 0 && comment.length > 0 && rate != null) {		
 					$.ajax({
 						url: '{% url "reviewsview" %}',
 						method: "POST",
-						data: data,
-						contentType: false,
-						processData: false,
+						headers: {
+							"X-CSRFToken": csrfmiddlewaretoken  // CSRF token passing
+						},
+						contentType: "application/json",
+						data: JSON.stringify({review_id: review_id, product_id: product_id, subject: subject, comment: comment, rate: rate}),
+						dataType: "json",
 						success: function (res) {
 							if(res.status == 200){
 								let reviewDiv = $("#review-" + res.review_id);
@@ -146,7 +136,5 @@
 				$(`input[name='rate'][value='${rate}']`).prop("checked", true);
 			});
 		});
-		
-		
 	</script>
 {% endblock extra_scripts %}	

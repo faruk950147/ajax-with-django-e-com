@@ -9,6 +9,7 @@ from django.views import generic
 from django.utils import timezone
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.db.models import Min, Max
+import json
 from cart.forms import (
     CartForm
 )
@@ -66,10 +67,13 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):
         if request.user.is_authenticated:
-            if request.method == "POST" or request.method == "post" and request.is_ajax(): 
-                id = request.POST.get("id")
-                action = request.POST.get("action")
+            if request.method == "POST": 
+                # id = request.POST.get("id")
+                # action = request.POST.get("action")
                 try:
+                    data = json.loads(request.body)
+                    id = data.get("id")
+                    action = data.get("action")
                     cart_product = get_object_or_404(Cart, id=id, user=request.user.id)
   
                     # Get maximum stock allowed
@@ -126,24 +130,25 @@ class RemoveToCart(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):
         if request.user.is_authenticated:
-            if request.method == "POST" or request.method == "post" and request.is_ajax(): 
-                id = request.POST.get("id")
+            if request.method == "POST": 
+                try:
+                    data = json.loads(request.body)
+                    id = data.get("id")
+                    
+                    cart_item = get_object_or_404(Cart, id=id, user=request.user.id)
+                    cart_item.delete()
+                    
+                    cart_products = Cart.objects.filter(user_id=request.user.id)
+                    
+                    return JsonResponse({"status": 200,
+                                        "messages": "Product removed successfully !", 
+                                        "cart_total": sum(item.quantity * item.product.price for item in cart_products),
+                                        "qty_total_price": cart_item.product.price * cart_item.quantity,
+                                        "sub_total": sum(item.quantity * item.product.price for item in cart_products),
+                                        "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
+                                        "id": id})
 
-            try:
-                cart_item = get_object_or_404(Cart, id=id, user=request.user.id)
-                cart_item.delete()
-                
-                cart_products = Cart.objects.filter(user_id=request.user.id)
-                
-                return JsonResponse({"status": 200,
-                                     "messages": "Product removed successfully !", 
-                                    "cart_total": sum(item.quantity * item.product.price for item in cart_products),
-                                    "qty_total_price": cart_item.product.price * cart_item.quantity,
-                                    "sub_total": sum(item.quantity * item.product.price for item in cart_products),
-                                    "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
-                                    "id": id})
-
-            except Cart.DoesNotExist:
-                return JsonResponse({"status": 400, "messages": "Product not found"})
+                except Cart.DoesNotExist:
+                    return JsonResponse({"status": 400, "messages": "Product not found"})
 
         return JsonResponse({"status": 400, "messages": "Invalid request"})

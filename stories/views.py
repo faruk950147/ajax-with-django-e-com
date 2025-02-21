@@ -1,3 +1,4 @@
+from ast import Try
 from django.shortcuts import render,redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -9,7 +10,7 @@ from django.views import generic
 from django.utils import timezone
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.db.models import Min, Max
-
+import json
 from stories.models import (
     Category,Brand,Product,ProductImages,Color,Size,Variants,Slider,Banner,Future,Review
 )
@@ -64,48 +65,44 @@ class ReviewsView(LoginRequiredMixin, generic.View):
     login_url = reverse_lazy('sign')
     def post(self, request):  
         if request.user.is_authenticated: 
-            if request.method == "POST" or request.method == "post" and request.is_ajax():
-                # Check if updating an existing review
-                review_id = request.POST.get("review_id")  
-                # Get product ID from request
-                product_id = request.POST.get("product_id")  
-                # Get the form data
-                subject = request.POST.get("subject")
-                comment = request.POST.get("comment")
-                rate = int(request.POST.get("rate"))
-
-                if not subject or not comment or not rate or not product_id:
-                    return JsonResponse({"status": 400, "messages": "All fields are required"})
-
-                product = get_object_or_404(Product, id=product_id)  # Ensure product exists
-
-                if review_id:  # Editing an existing review
-                    review = get_object_or_404(Review, id=review_id, user_id=request.user.id)
-                    review.subject = subject
-                    review.comment = comment
-                    review.rate = rate
-                    review.save()
-                else:  # Creating a new review
-                    review = Review()
-                    review.product = product
-                    review.user_id = request.user.id
-                    review.subject = subject
-                    review.comment = comment
-                    review.rate = rate
-                    review.save()
-
-                return JsonResponse({
-                    "status": 200,
-                    "review_id": review.id,
-                    "product_id": review.product.id,
-                    "user": review.user.username,
-                    "subject": review.subject,
-                    "comment": review.comment,
-                    "rate": review.rate,  
-                    "updated_date": review.updated_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    "messages": "Review added successfully"
-                })
-
-            return JsonResponse({"stsatus": 401, "messages": "Invalid request"})
+            if request.method == "POST":
+                try:
+                    data = json.loads(request.body)
+                    # Check if updating an existing review
+                    review_id = data.get("review_id")  
+                    # Get product ID from request
+                    product_id = data.get("product_id")  
+                    # Get the form data
+                    subject = data.get("subject")
+                    comment = data.get("comment")
+                    rate = int(data.get("rate"))
+                    product = get_object_or_404(Product, id=product_id)  # Ensure product exists
+                    if review_id:  # Editing an existing review
+                        review = get_object_or_404(Review, id=review_id, user_id=request.user.id)
+                        review.subject = subject
+                        review.comment = comment
+                        review.rate = rate
+                        review.save()
+                    else:  # Creating a new review
+                        review = Review()
+                        review.product = product
+                        review.user_id = request.user.id
+                        review.subject = subject
+                        review.comment = comment
+                        review.rate = rate
+                        review.save()
+                    return JsonResponse({
+                        "status": 200,
+                        "review_id": review.id,
+                        "product_id": review.product.id,
+                        "user": review.user.username,
+                        "subject": review.subject,
+                        "comment": review.comment,
+                        "rate": review.rate,  
+                        "updated_date": review.updated_date.strftime('%Y-%m-%d %H:%M:%S'),
+                        "messages": "Review added successfully"
+                    })
+                except Review.DoesNotExist:
+                    return JsonResponse({"stsatus": 404, "messages": "Review not found for this user"})
         else:
             return redirect('sign')

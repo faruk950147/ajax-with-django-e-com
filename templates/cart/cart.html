@@ -114,10 +114,12 @@
             $.ajax({
                 url: "{% url 'qtyincdec' %}",  // Adjust this URL based on your Django URL name
                 method: "POST",
-                data: {
-                    id: id,
-                    action: action,
-                },
+				headers: {
+					"X-CSRFToken": $('input[name=csrfmiddlewaretoken]').val(),
+				},
+                data: JSON.stringify({"id": id, "action": action}),
+				contentType: "application/json",
+				dataType: "json",
 				success: function (res) {
 					if (res.status == 200) {
 						// Update quantity and total price
@@ -154,9 +156,12 @@
 			$.ajax({
 				url: "{% url 'removetocart' %}",  // Ensure this URL is correctly mapped in Django
 				method: "POST",
-				data: {
-					id: id,
+				headers: {
+					"X-CSRFToken": $('input[name=csrfmiddlewaretoken]').val(),
 				},
+				data: JSON.stringify({"id": id}),
+				contentType: "application/json",
+				dataType: "json",
 				success: function(res){
 					if(res.status == 200){
 						row.fadeOut(300, function(){ $(this).remove(); });
