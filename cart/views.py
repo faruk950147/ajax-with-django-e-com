@@ -32,7 +32,7 @@ class AddTtoCart(LoginRequiredMixin, generic.View):
                 control = 1
             else:
                 control = 0
-            if request.method == "POST" or request.method == "post" and request.is_ajax():
+            if request.method == "POST":
                 cartForm = CartForm(request.POST)
                 if cartForm.is_valid():
                     if control == 1:
