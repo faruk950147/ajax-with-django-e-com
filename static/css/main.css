@@ -12,15 +12,3 @@
 .eyer-style-cursor{
     cursor: pointer;
 }
-.color-option {
-  display: flex;
-  flex-wrap: wrap; /* Allows wrapping to next line */
-  gap: 10px; /* Adds space between elements */
-  max-width: 100%;
-}
-
-.color {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
