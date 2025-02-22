@@ -68,62 +68,51 @@ class QuantityIncDec(LoginRequiredMixin, generic.View):
     def post(self, request):
         if request.user.is_authenticated:
             if request.method == "POST": 
-                # id = request.POST.get("id")
-                # action = request.POST.get("action")
                 try:
                     data = json.loads(request.body)
-                    id = data.get("id")
+                    cart_item_id = data.get("id")
                     action = data.get("action")
-                    cart_product = get_object_or_404(Cart, id=id, user=request.user.id)
-  
-                    # Get maximum stock allowed
+                    # get cart product
+                    cart_product = get_object_or_404(Cart, id=cart_item_id, user=request.user.id)
+
+                    # maximum stock check
                     max_stock = cart_product.product.in_stock_max  
 
-                    # Increase or decrease quantity based on action
+                    # action update quantity
                     if action == "increase":
                         if cart_product.quantity < max_stock:
                             cart_product.quantity += 1
                         else:
-                            return JsonResponse({
-                                "status": 400,
-                                "messages": f"Cannot add more than {max_stock} units of this product!",
-                                "quantity": cart_product.quantity
-                            })
-                    
+                            return JsonResponse({"status": 400, "messages": f"Cannot add more than {max_stock} units of this product!", "quantity": cart_product.quantity})
                     elif action == "decrease":
                         if cart_product.quantity > 1:
                             cart_product.quantity -= 1
                         else:
-                            return JsonResponse({
-                                "status": 400,
-                                "messages": "Quantity cannot be less than 1!",
-                                "quantity": cart_product.quantity
-                            })
-
+                            return JsonResponse({"status": 400,"messages": "Quantity cannot be less than 1!","quantity": cart_product.quantity})
+                    # save cart product
                     cart_product.save()
-                    
-                    cart_products = Cart.objects.filter(user_id=request.user.id)
-                    return JsonResponse({"status": 200, 
-                                        "messages": f"Quantity updated successfully! {cart_product.quantity}",
-                                        "quantity": cart_product.quantity,
-                                        "cart_total": sum(item.quantity * item.product.price for item in cart_products),
-                                        "qty_total_price": cart_product.product.price * cart_product.quantity,
-                                        "sub_total": sum(item.quantity * item.product.price for item in cart_products),
-                                        "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
-                                        "id": id
-                                        })
-                
-                except Cart.DoesNotExist:
-                    return JsonResponse({"status": 401, 
-                                        "messages": "Product not found"
-                                        })
-            return JsonResponse({"status": 402, 
-                                "messages": "Something is happen"
-                                })
+
+                    # cart products load (once Query will be)
+                    cart_products = list(Cart.objects.filter(user=request.user.id))
+                    cart_total = sum(item.quantity * item.product.price for item in cart_products)
+                    final_price = cart_total + 150  # delivery charge 150
+
+                    return JsonResponse({
+                        "status": 200,
+                        "messages": f"Quantity updated successfully! {cart_product.quantity}",
+                        "quantity": cart_product.quantity,
+                        "cart_total": cart_total,
+                        "qty_total_price": cart_product.product.price * cart_product.quantity,
+                        "sub_total": cart_total,
+                        "finale_price": final_price,
+                        "id": cart_item_id
+                    })
+
+                except Exception as e:
+                    return JsonResponse({"status": 400, "messages": str(e)})
+            return JsonResponse({"status": 402, "messages": "Something is happen"})
         else:
-            return JsonResponse({"status": 403, 
-                                "messages": "You are not logged in !"
-                                })
+            return JsonResponse({"status": 403, "messages": "You are not logged in !"})
 
 @method_decorator(never_cache, name='dispatch')
 class RemoveToCart(LoginRequiredMixin, generic.View):
@@ -133,22 +122,32 @@ class RemoveToCart(LoginRequiredMixin, generic.View):
             if request.method == "POST": 
                 try:
                     data = json.loads(request.body)
-                    id = data.get("id")
-                    
-                    cart_item = get_object_or_404(Cart, id=id, user=request.user.id)
+                    cart_item_id = data.get("id")
+
+                    # get cart item
+                    cart_item = get_object_or_404(Cart, id=cart_item_id, user=request.user)
+
+                    # qty total price
+                    qty_total_price = cart_item.product.price * cart_item.quantity
+
+                    # delete cart item
                     cart_item.delete()
-                    
-                    cart_products = Cart.objects.filter(user_id=request.user.id)
-                    
-                    return JsonResponse({"status": 200,
-                                        "messages": "Product removed successfully !", 
-                                        "cart_total": sum(item.quantity * item.product.price for item in cart_products),
-                                        "qty_total_price": cart_item.product.price * cart_item.quantity,
-                                        "sub_total": sum(item.quantity * item.product.price for item in cart_products),
-                                        "finale_price": sum(item.quantity * item.product.price for item in cart_products) + 150,
-                                        "id": id})
 
-                except Cart.DoesNotExist:
-                    return JsonResponse({"status": 400, "messages": "Product not found"})
+                    # cart products load (once Query will be)
+                    cart_products = list(Cart.objects.filter(user=request.user))
+                    cart_total = sum(item.quantity * item.product.price for item in cart_products)
+                    final_price = cart_total + 150  # delivery charge 150
 
+                    return JsonResponse({
+                        "status": 200,
+                        "messages": "Product removed successfully!",
+                        "cart_total": cart_total,
+                        "qty_total_price": qty_total_price,
+                        "sub_total": cart_total,
+                        "finale_price": final_price,
+                        "id": cart_item_id
+                    })
+
+                except Exception as e:
+                    return JsonResponse({"status": 400, "messages": str(e)})
         return JsonResponse({"status": 400, "messages": "Invalid request"})

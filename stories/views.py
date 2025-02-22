@@ -45,16 +45,18 @@ class SingleProductView(LoginRequiredMixin, generic.View):
     def get(self, request, id):
         if request.user.is_authenticated:
             product = get_object_or_404(Product, id=id)
-            related_products = Product.objects.filter(category=product.category).exclude(id=id).order_by('-id')[:4]
-            reviews = Review.objects.filter(product=product, status=True)
-            reviews_total = Review.objects.filter(product=product, status=True).count()
             
+            related_products = Product.objects.filter(
+                category=product.category
+            ).exclude(id=id).select_related('category').order_by('-id')[:4]
+            
+            reviews = Review.objects.filter(product=product, status=True).select_related('user')
+            reviews_total = reviews.count()  # Return the count of reviews
             context = {
                 'product': product,
                 'related_products': related_products,
                 'reviews': reviews,
                 'reviews_total': reviews_total,
-                # 'cart_form': CartForm
             }
             return render(request, 'stories/single.html', context)
         else:
@@ -76,7 +78,19 @@ class ReviewsView(LoginRequiredMixin, generic.View):
                     subject = data.get("subject")
                     comment = data.get("comment")
                     rate = int(data.get("rate"))
+                    
                     product = get_object_or_404(Product, id=product_id)  # Ensure product exists
+                    
+                    # Rating validation (1 to 5)
+                    if not (1 <= rate <= 5):
+                        return JsonResponse({"status": 400, "messages": "Invalid rating. Must be between 1 and 5."})
+
+                    # Check if the user has already reviewed this product
+                    if not review_id:
+                        existing_review = Review.objects.filter(product=product, user=request.user).first()
+                        if existing_review:
+                            return JsonResponse({"status": 400, "messages": "You have already reviewed this product."})
+                    
                     if review_id:  # Editing an existing review
                         review = get_object_or_404(Review, id=review_id, user_id=request.user.id)
                         review.subject = subject
