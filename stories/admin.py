@@ -66,7 +66,7 @@ class VariantsAdmin(ModelAdmin):
     list_editable = ['title','color','size','price','quantity']
     search_fields = ['title','color','size','price','quantity']
     list_filter = ['product','color','size']
-    readonly_fields = ['id', 'product', 'title','color','size','price','quantity','image_tag']
+    # readonly_fields = ['id', 'product', 'title','color','size','price','quantity','image_tag']
 admin.site.register(Variants, VariantsAdmin)
 
 class ColorAdmin(ModelAdmin):
@@ -74,7 +74,7 @@ class ColorAdmin(ModelAdmin):
     list_editable = ['code']
     search_fields = ['title','code']
     list_filter = ['title','code']
-    readonly_fields = ['color_tag']
+    # readonly_fields = ['color_tag']
 admin.site.register(Color,ColorAdmin)
 
 class SizeAdmin(ModelAdmin):
@@ -82,7 +82,7 @@ class SizeAdmin(ModelAdmin):
     list_editable = ['code']
     search_fields = ['title', 'code']
     list_filter = ['title', 'code']
-    readonly_fields = ['id', 'title', 'code']
+    # readonly_fields = ['id', 'title', 'code']
 admin.site.register(Size,SizeAdmin)
 
 class SliderAdmin(ModelAdmin):
@@ -90,24 +90,24 @@ class SliderAdmin(ModelAdmin):
     list_editable = ['title']
     search_fields = ['title']
     list_filter = ['product', 'created_date', 'updated_date']
-    readonly_fields = ['id', 'product', 'title', 'image_tag', 'created_date', 'updated_date']
+    # readonly_fields = ['id', 'product', 'title', 'image_tag', 'created_date', 'updated_date']
 admin.site.register(Slider, SliderAdmin)
 class BannerAdmin(ModelAdmin):
     list_display = ['id', 'product', 'title', 'image_tag', 'side_deals', 'status', 'created_date', 'updated_date']
     list_editable = ['side_deals', 'status']
     search_fields = ['title']
     list_filter = ['product', 'side_deals', 'status', 'created_date', 'updated_date']
-    readonly_fields = ['id', 'product', 'title', 'image_tag', 'created_date', 'updated_date']
+    # readonly_fields = ['id', 'product', 'title', 'image_tag', 'created_date', 'updated_date']
 admin.site.register(Banner, BannerAdmin)
 
 class FutureAdmin(ModelAdmin):
     list_display = ['id', 'product', 'title', 'hard_disk', 'cpu', 'ram', 'os', 'special_feature',  'ghaphic',  'status', 'created_date', 'updated_date']
-    readonly_fields = ['id', 'product', 'title', 'hard_disk', 'cpu', 'ram', 'os', 'special_feature',  'ghaphic',  'status', 'created_date', 'updated_date']
+    # readonly_fields = ['id', 'product', 'title', 'hard_disk', 'cpu', 'ram', 'os', 'special_feature',  'ghaphic',  'status', 'created_date', 'updated_date']
     search_fields = ['title', 'hard_disk', 'cpu', 'ram', 'os', 'special_feature',  'ghaphic']
     list_filter = ['product', 'status', 'created_date', 'updated_date']
 admin.site.register(Future, FutureAdmin)
 class ReviewAdmin(ModelAdmin):
     list_display = ['id', 'product', 'user', 'subject','comment', 'rate', 'status','created_date']
     list_editable = ['status']
-    readonly_fields = ['id', 'product', 'user', 'subject','comment', 'rate', 'status','created_date']
+    # readonly_fields = ['id', 'product', 'user', 'subject','comment', 'rate', 'status','created_date']
 admin.site.register(Review, ReviewAdmin)
