@@ -2,7 +2,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.db.models import Min, Max
 from django.utils import timezone
 from stories.models import (
-    Category, Brand, Product, ProductImages, Color, Size, Variants,
+    Category, Brand, Product, Images, Color, Size, Variants,
 )
 
 def get_filters(request):

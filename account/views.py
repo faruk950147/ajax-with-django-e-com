@@ -381,9 +381,9 @@ class ProfileView(LoginRequiredMixin, generic.View):
                 user_p.zip_code = zip_code
                 user_p.phone = phone
                 user_p.address = address
-                if "profile_image" in request.FILES:
-                    profile_image = request.FILES.get("profile_image")
-                    user_p.profile_image = profile_image
+                if "image" in request.FILES:
+                    image = request.FILES.get("image")
+                    user_p.image = image
                 user_p.save()
                 return JsonResponse({"status": 200, 'messages': 'Your profile updated successfully!'})
         else:

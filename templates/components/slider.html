@@ -11,8 +11,8 @@
 					{% for slider in sliders %}
 					<!-- banner -->
 					<div class="banner banner-1">
-						{% if slider.slider_image %}
-						<img src="{{slider.slider_image.url}}" alt="">
+						{% if slider.image %}
+						<img src="{{slider.image.url}}" alt="">
 						{% else %}
 						    <img src="{% static "img/no-image.jpg" %}" alt="">
 						{% endif %}

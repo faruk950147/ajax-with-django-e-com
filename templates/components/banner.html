@@ -11,8 +11,8 @@
 				{% for banner in banners %}
 				<div class="col-md-4 col-sm-6">
 					<a class="banner banner-1" href="{% url "singleproductview" banner.product.id %}">
-						{% if banner.banner_image %}
-						<img src="{{banner.banner_image.url}}" alt="">
+						{% if banner.image %}
+						<img src="{{banner.image.url}}" alt="">
 						{% else %}
 						<img src="{% static "img/no-image.jpg" %}" alt="">
 						{% endif %}

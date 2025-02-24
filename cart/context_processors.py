@@ -3,7 +3,7 @@ from django.db.models import Min, Max
 from django.utils import timezone
 from cart.models import Cart
 from stories.models import (
-    Category, Brand, Product, ProductImages, Color, Size, Variants,
+    Category, Brand, Product, Images, Color, Size, Variants,
 )
 
 def get_filters(request):

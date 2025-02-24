@@ -11,48 +11,51 @@
 
 						<div id="product-main-view">
 							<div class="product-view" style="width: 400px; height: 450px;">
-
-								{% if product.products_images.first.gallery  %}
-								<img id="main-product-image" src="{{product.products_images.first.gallery.url}}" alt="" style="width: 100%; height: 100%;">
+								{% if product.image %}
+								<img id="main-product-image" src="{{product.image.url}}" alt="" style="width: 100%; height: 100%;">
+								{% elif product.products_images.first.image  %}
+								<img id="main-product-image" src="{{product.products_images.first.image.url}}" alt="" style="width: 100%; height: 100%;">
+								{% else %}
+								<img id="main-product-image" src="{% static 'img/no-image.jpg' %}" alt="" style="width: 100%; height: 100%;">
 								{% endif %}
 
 							</div>
 
-							{% if product.products_images %}
+							{% if product.products_images.exists %}
 							{% for images in product.products_images.all %}
-
 							<div class="product-view" style="width: 400px; height: 450px;">
-
-								<img src="{{images.gallery.url}}" alt="" style="width: 100%; height: 100%;">
-
+								<img src="{{images.image.url}}" alt="" style="width: 100%; height: 100%;">
 							</div>
-
 							{% endfor %}
+							{% else %}
+							<div class="product-view" style="width: 400px; height: 450px;">
+								<img src="{% static 'img/no-image.jpg' %}" alt="" style="width: 100%; height: 100%;">
+							</div>
 							{% endif %}
-
 						</div>
 
 						<div id="product-view">
 							<div class="product-view">
-								
-								{% if product.products_images.first.gallery  %}
-								<img src="{{product.products_images.first.gallery.url}}" alt="">
+								{% if product.image %}
+								<img id="main-product-image" src="{{product.image.url}}" alt="" style="width: 100%; height: 100%;">
+								{% elif product.products_images.first.image  %}
+								<img id="main-product-image" src="{{product.products_images.first.image.url}}" alt="" style="width: 100%; height: 100%;">
+								{% else %}
+								<img id="main-product-image" src="{% static 'img/no-image.jpg' %}" alt="" style="width: 100%; height: 100%;">
 								{% endif %}
-
 							</div>
 							
-							{% if product.products_images  %}
+							{% if product.products_images.exists %}
 							{% for images in product.products_images.all %}
-
 							<div class="product-view">
-
-								<img src="{{images.gallery.url}}" alt="">
-
+								<img src="{{images.image.url}}" alt="" style="width: 100%; height: 100%;">
 							</div>
-
 							{% endfor %}
+							{% else %}
+							<div class="product-view">
+								<img src="{% static 'img/no-image.jpg' %}" alt="" style="width: 100%; height: 100%;">
+							</div>
 							{% endif %}
-							
 						</div>
 
 					</div>

@@ -30,8 +30,8 @@
 				{% if side_deals_banners  %}
 					{% for side_deals_banner in side_deals_banners %}
 					<div class="banner banner-2">
-						{% if side_deals_banner.banner_image %}
-						    <img src="{{side_deals_banner.banner_image.url}}" alt="">
+						{% if side_deals_banner.image %}
+						    <img src="{{side_deals_banner.image.url}}" alt="">
 							{% else %}
 							<img src="{% static "img/no-image.jpg" %}" alt="">
 						
@@ -88,8 +88,10 @@
 								
 
 									<a href="{% url "singleproductview" deals_product.id %}" class="main-btn quick-view"><i class="fa fa-search-plus"></i> Quick view</a>
-									{% if deals_product.products_images.first.gallery %}
-										<img src="{{deals_product.products_images.first.gallery.url}}" alt="">
+									{% if deals_product.image %}
+										<img src="{{deals_product.image.url}}" alt="">
+									{% elif deals_product.products_images.first.image %}
+										<img src="{{deals_product.products_images.first.image.url}}" alt="">
 									{% else %}
 									    <img src="{% static "img/no-image.jpg" %}" alt="">
 									{% endif %}

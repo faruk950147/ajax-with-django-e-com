@@ -42,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles')
-    profile_image = models.FileField(upload_to='profiles', null=True, blank=True)
+    image = models.FileField(upload_to='profiles', null=True, blank=True)
     country = models.CharField(max_length=150, null=True, blank=True)
     city = models.CharField(max_length=150, null=True, blank=True)
     home_city = models.CharField(max_length=150, null=True, blank=True)
@@ -58,8 +58,8 @@ class Profile(models.Model):
         
     @property
     def image_tag(self):   
-        if self.profile_image:
-            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.profile_image.url))
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
         return mark_safe('<span>No Image</span>')  
         
     def __str__(self):

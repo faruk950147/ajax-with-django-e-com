@@ -67,8 +67,8 @@
 						<li class="header-account dropdown default-dropdown">
 							<div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
 								<div class="header-btns-icon" style="width: 45px;">
-									{% if request.user.profiles.profile_image %}
-									<img src="{{request.user.profiles.profile_image.url}}" alt="" style="width: 100%;">
+									{% if request.user.profiles.image %}
+									<img src="{{request.user.profiles.image.url}}" alt="" style="width: 100%;">
 									{% else %}
 									<img src="{% static "img/user.png" %}" alt="{{request.user.username}}"
 									class="rounded-circle img-fluid shadow-lg" style="width: 30px;">
@@ -115,8 +115,10 @@
 										{% for cart_products in cart_products %}
 										<div class="product product-widget">
 											<div class="product-thumb">
-												{% if cart_products.product.products_images.first.gallery  %}
-												<img src="{{cart_products.product.products_images.first.gallery.url}}" alt="">
+												{% if cart_products.product.image %}
+												<img src="{{cart_products.product.image.url}}" alt="">
+												{% elif cart_products.product.products_images.first.image %}
+												<img src="{{cart_products.product.products_images.first.image.url}}" alt="">
 												{% else %}
 												<img src="{% static "img/no-image.jpg" %}" alt="">
 												{% endif %}

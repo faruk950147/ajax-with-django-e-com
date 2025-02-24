@@ -16,7 +16,7 @@ class Category(models.Model):
     title = models.CharField(max_length=150, unique=True, null=False, blank=False)
     keyword = models.CharField(max_length=150, null=True, blank=True)  # Removed unique constraint
     description = models.CharField(max_length=150, null=True, blank=True)  # Removed unique constraint
-    cat_image = models.ImageField(upload_to='category', null=True, blank=True)
+    image = models.ImageField(upload_to='category', null=True, blank=True)
     status = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
@@ -27,9 +27,10 @@ class Category(models.Model):
         
     @property
     def image_tag(self):   
-        if self.cat_image:
-            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.cat_image.url))
-        return mark_safe('<span>No Image</span>')  # You could add a fallback image URL here if needed
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
+         # You could add a fallback image URL here if needed
+        return mark_safe('<span>No Image</span>') 
 
     def __str__(self):
         return f'{self.title} - {"Active" if self.status else "Inactive"}'
@@ -38,7 +39,7 @@ class Brand(models.Model):
     title = models.CharField(max_length=150, unique=True, null=False, blank=False)
     keyword = models.CharField(max_length=150, null=True, blank=True)  # Removed unique constraint
     description = models.CharField(max_length=150, null=True, blank=True)  # Removed unique constraint
-    bra_image = models.ImageField(upload_to='brand', null=True, blank=True)
+    image = models.ImageField(upload_to='brand', null=True, blank=True)
     status = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
@@ -49,8 +50,8 @@ class Brand(models.Model):
         
     @property
     def image_tag(self):   
-        if self.bra_image:
-            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.bra_image.url))
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
         return mark_safe('<span>No Image</span>') 
 
     def __str__(self):
@@ -81,10 +82,10 @@ class Product(models.Model):
     description = models.TextField(default='N/A')
     addition_des = models.TextField(default='N/A')
     return_policy = models.TextField(default='N/A')
+    image = models.ImageField(upload_to='products', null=True, blank=True)
     is_active = models.BooleanField(default=False)
     deals = models.BooleanField(default=False)
     new_collection = models.BooleanField(default=False)
-    sides_product = models.BooleanField(default=False)
     latest_collection = models.BooleanField(default=False)
     pick_collection = models.BooleanField(default=False)
     girls_collection = models.BooleanField(default=False)
@@ -125,25 +126,31 @@ class Product(models.Model):
     @property
     def countreview(self):
         return Review.objects.filter(product=self, status=True).count()
-            
+    
+    @property
+    def image_tag(self):   
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
+        return mark_safe('<span>No Image</span>')
+    
     def __str__(self):
         return f'{self.title} - {"Active" if self.status else "Inactive"}'
     
-class ProductImages(models.Model):
+class Images(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='products_images')
     title = models.CharField(max_length=50, null=True, blank=True)
-    gallery = models.ImageField(upload_to='product', null=True, blank=True)
+    image = models.ImageField(upload_to='images', null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['-id']
-        verbose_name_plural = '04. Products Images'
+        verbose_name_plural = '04. Images'
         
     @property
     def image_tag(self):   
-        if self.gallery:
-            return mark_safe('<img src="%s" width="50" height="50" />' % (self.gallery.url))
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50" />' % (self.image.url))
         else:
             return mark_safe('<span>No Image</span>') 
     
@@ -158,7 +165,7 @@ class Color(models.Model):
     
     class Meta:
         ordering = ['-id']
-        verbose_name_plural = '05.Products Colorized'
+        verbose_name_plural = '05.Products Colors'
         
     @property
     def color_tag(self):
@@ -201,29 +208,29 @@ class Variants(models.Model):
         
     def __str__(self):
             return self.title if self.title else f"Variant {self.id} of {self.product.title}"
-
+    
     @property
     def image(self):
         """Safely return the image URL or an empty string if not found."""
         try:
-            img = ProductImages.objects.get(id=self.image_id)
+            img = Images.objects.get(id=self.image_id)
             return img.image.url if img.image else "No Image"
-        except ProductImages.DoesNotExist:
+        except Images.DoesNotExist:
             return ""
-
+    
     @property
     def image_tag(self):
         """Safely return an image tag or a placeholder if not found."""
         try:
-            img = ProductImages.objects.get(id=self.image_id)
-            return mark_safe(f'<img src="{img.gallery.url}" width="50" height="50"/>')
-        except ProductImages.DoesNotExist:
+            img = Images.objects.get(id=self.image_id)
+            return mark_safe(f'<img src="{img.image.url}" width="50" height="50"/>')
+        except Images.DoesNotExist:
             return mark_safe('<span>No Image</span>')
 
 class  Slider(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='top_sliders')
     title = models.CharField(max_length=150, null=False, blank=False)
-    slider_image = models.ImageField(upload_to='slider', null=True, blank=True)
+    image = models.ImageField(upload_to='slider', null=True, blank=True)
     status = models.BooleanField(default=True)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
@@ -234,8 +241,8 @@ class  Slider(models.Model):
         
     @property
     def image_tag(self):   
-        if self.slider_image:
-            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.slider_image.url))
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
         else:
             return  mark_safe('<span>No Image</span>') 
 
@@ -245,7 +252,7 @@ class  Slider(models.Model):
 class  Banner(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     title = models.CharField(max_length=150, null=False, blank=False)
-    banner_image = models.ImageField(upload_to='banners', null=True, blank=True)
+    image = models.ImageField(upload_to='banners', null=True, blank=True)
     side_deals = models.BooleanField(default=False)
     new_side = models.BooleanField(default=False)
     status = models.BooleanField(default=True)
@@ -258,8 +265,8 @@ class  Banner(models.Model):
         
     @property
     def image_tag(self):   
-        if self.banner_image:
-            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.banner_image.url))
+        if self.image:
+            return mark_safe('<img src="%s" width="50" height="50"/>' % (self.image.url))
         else:
             return mark_safe('<span>No Image</span>') 
 

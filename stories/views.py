@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.db.models import Min, Max
 import json
 from stories.models import (
-    Category,Brand,Product,ProductImages,Color,Size,Variants,Slider,Banner,Future,Review
+    Category,Brand,Product, Images,Color,Size,Variants,Slider,Banner,Future,Review
 )
 from cart.forms import CartForm
 #import store models
@@ -26,7 +26,7 @@ class HomeView(LoginRequiredMixin, generic.View):
             context = {
                 'sliders': Slider.objects.filter(status=True).order_by('id'),
                 'banners': Banner.objects.filter(status=True).order_by('id')[:3],
-                'side_deals_banners': Banner.objects.filter(status=False, side_deals=True).order_by('id')[:1],
+                'side_deals_banners': Banner.objects.filter(status=True, side_deals=True, new_side=True).order_by('id')[:1],
                 'deals_products': Product.objects.filter(offers_deadline__isnull=False,  is_active=True, deals=True, status=True).order_by("id")[:6],
                 'current_time': timezone.now(),
                 'new_collections': Product.objects.filter(status=True, new_collection=True).order_by('id')[:4], 
